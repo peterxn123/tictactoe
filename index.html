@@ -1,10 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Tic-Tac-Toe</title>
     <style>
+        /* Keeping all existing styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ... (all your existing styles) ... */
+
+        /* Adding new styles for difficulty buttons */
+        .difficulty-screen {
+            display: none;
+            opacity: 0;
+        }
+
+        .difficulty-screen.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .difficulty-button {
+            margin: 10px 0;
+        }
+
+        .difficulty-easy {
+            background: #4CAF50;
+        }
+
+        .difficulty-medium {
+            background: #FFC107;
+        }
+
+        .difficulty-hard {
+            background: #F44336;
+        }
+
         /* Existing styles */
         * {
             box-sizing: border-box;
@@ -67,6 +106,15 @@
             transition: opacity 0.5s ease;
         }
 
+        .options-screen {
+            display: none;
+        }
+
+        .options-screen.active {
+            display: flex;
+            opacity: 1;
+        }
+
         .title-screen, .victory-screen {
             display: none;
         }
@@ -112,7 +160,7 @@
         }
 
         .game-screen.active {
-            display: block;
+            display: flex;
             opacity: 1;
         }
 
@@ -302,12 +350,10 @@
             margin-top: 40px;
 
         }
-
-        /* Reuse the existing button styles for mode options */
     </style>
 </head>
 <body class="dark-theme">
-
+    <!-- Keep all existing screens -->
     <!-- Title Screen -->
     <div class="container title-screen active" id="titleScreen">
         <h1 class="title">Tic-Tac-Toe</h1>
@@ -371,13 +417,28 @@
         </div>
         <button class="button gobackbuttonclass" id="goBackButton"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-back-up"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 14l-4 -4l4 -4" /><path d="M5 10h11a4 4 0 1 1 0 8h-1" /></svg> Go Back</button>
     </div>
-
-    
-
-
+    <!-- Add new Difficulty Selection Screen -->
+    <div class="container difficulty-screen" id="difficultyScreen">
+        <h1 class="title">Select Difficulty</h1>
+        <button class="button difficulty-button bg-green-500 hover:bg-green-800" id="easyButton">
+            
+            Easy
+        </button>
+        <button class="button difficulty-button difficulty-medium bg-orange-500 hover:bg-orange-700" id="mediumButton">
+            
+            Medium
+        </button>
+        <button class="button difficulty-button difficulty-hard bg-red-500 hover:bg-red-800" id="hardButton">
+            
+            Hard
+        </button>
+        <button class="button gobackbuttonclass" id="difficultyBackButton">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14l-4-4 4-4"/><path d="M5 10h11a4 4 0 1 1 0 8h-1"/></svg>
+            Go Back
+        </button>
+    </div>
 
     <script>
-        // Element selectors
         const helpButton = document.getElementById('helpButton');
         const optionsScreen = document.getElementById('optionsScreen');
         const titleScreen = document.getElementById('titleScreen');
@@ -412,21 +473,151 @@
             [0, 4, 8],
             [2, 4, 6]
         ];
+        // Keep all existing variables and add new ones
+        let difficulty = 'easy';
+        const difficultyScreen = document.getElementById('difficultyScreen');
+        const easyButton = document.getElementById('easyButton');
+        const mediumButton = document.getElementById('mediumButton');
+        const hardButton = document.getElementById('hardButton');
+        const difficultyBackButton = document.getElementById('difficultyBackButton');
+
+        // Modify the showScreen function to include the new difficulty screen
+        function showScreen(screenToShow) {
+        const screens = [titleScreen, modeScreen, gameScreen, victoryScreen, helpScreen, optionsScreen, difficultyScreen];
+        screens.forEach(screen => {
+            screen.classList.remove('active'); // Remove active class from all screens
+            if (screen === document.getElementById(screenToShow)) {
+                screen.classList.add('active'); // Add active class to the screen to show
+            }
+        });
+}
+
+
+        // Modify the computerButton click event
+        computerButton.addEventListener('click', () => {
+            showScreen('difficultyScreen');
+        });
+
+        // Add event listeners for difficulty buttons
+        easyButton.addEventListener('click', () => {
+            difficulty = 'easy';
+            isAgainstComputer = true;
+            startGame();
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            showScreen('titleScreen');
+        });
+
+        mediumButton.addEventListener('click', () => {
+            difficulty = 'medium';
+            isAgainstComputer = true;
+            startGame();
+        });
+
+        hardButton.addEventListener('click', () => {
+            difficulty = 'hard';
+            isAgainstComputer = true;
+            startGame();
+        });
+
+        difficultyBackButton.addEventListener('click', () => {
+            showScreen('modeScreen');
+        });
+
+        // Modify the computerMove function to use different strategies based on difficulty
+        function computerMove() {
+            let move;
+            switch(difficulty) {
+                case 'easy':
+                    move = getEasyMove();
+                    break;
+                case 'medium':
+                    move = Math.random() < 0.5 ? getHardMove() : getEasyMove();
+                    break;
+                case 'hard':
+                    move = getHardMove();
+                    break;
+                default:
+                    move = getEasyMove();
+            }
+            makeMove(move, 'O');
+        }
+
+        // Easy difficulty: Random moves
+        function getEasyMove() {
+            let availableMoves = board.map((val, index) => val === '' ? index : null).filter(val => val !== null);
+            return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+        }
+
+        // Hard difficulty: Optimal moves using minimax algorithm
+        function getHardMove() {
+            let bestScore = -Infinity;
+            let bestMove;
+            
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === '') {
+                    board[i] = 'O';
+                    let score = minimax(board, 0, false);
+                    board[i] = '';
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = i;
+                    }
+                }
+            }
+            
+            return bestMove;
+        }
+
+        function minimax(board, depth, isMaximizing) {
+            let result = checkWinner();
+            if (result !== null) {
+                return result === 'O' ? 1 : result === 'X' ? -1 : 0;
+            }
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (board[i] === '') {
+                        board[i] = 'O';
+                        let score = minimax(board, depth + 1, false);
+                        board[i] = '';
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (board[i] === '') {
+                        board[i] = 'X';
+                        let score = minimax(board, depth + 1, true);
+                        board[i] = '';
+                        bestScore = Math.min(score, bestScore);
+                    }
+                }
+                return bestScore;
+            }
+        }
+
+        function checkWinner() {
+            for (let i = 0; i < winConditions.length; i++) {
+                const [a, b, c] = winConditions[i];
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return board[a];
+                }
+            }
+            return board.includes('') ? null : 'tie';
+        }
+
+        // Keep all other existing functions
+
+        // Element selectors
+        
     
         // Show a specific screen and hide others
-        function showScreen(screenToShow) {
-            const screens = [titleScreen, modeScreen, gameScreen, victoryScreen, helpScreen, optionsScreen];
-            screens.forEach(screen => {
-                screen.classList.remove('fade-in', 'fade-out');
-                if (screen === document.getElementById(screenToShow)) {
-                    screen.classList.add('fade-in');
-                    screen.classList.add('active');
-                } else {
-                    screen.classList.add('fade-out');
-                    setTimeout(() => screen.classList.remove('active'), 500);
-                }
-            });
-        }
+        
         
     
          // Event listener for the Options button to open the options screen
@@ -469,10 +660,7 @@
             startGame();
         });
     
-        computerButton.addEventListener('click', () => {
-            isAgainstComputer = true;
-            startGame();
-        });
+        
     
         // "Play Again" button logic: Resets the game and starts a new one
         playAgainButton.addEventListener('click', () => {
@@ -527,11 +715,7 @@
         }
     
         // Computer move logic
-        function computerMove() {
-            let availableMoves = board.map((val, index) => val === '' ? index : null).filter(val => val !== null);
-            let randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
-            makeMove(randomMove, 'O');
-        }
+        
     
         // Check if someone has won or if it's a draw
         function checkResult() {
@@ -600,6 +784,5 @@
         cells.forEach(cell => cell.addEventListener('click', handleCellClick));
     
     </script>
-    
 </body>
 </html>
