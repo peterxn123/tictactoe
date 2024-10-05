@@ -416,9 +416,18 @@
         // Show a specific screen and hide others
         function showScreen(screenToShow) {
             const screens = [titleScreen, modeScreen, gameScreen, victoryScreen, helpScreen, optionsScreen];
-            screens.forEach(screen => screen.classList.remove('active'));
-            document.getElementById(screenToShow).classList.add('active');
+            screens.forEach(screen => {
+                screen.classList.remove('fade-in', 'fade-out');
+                if (screen === document.getElementById(screenToShow)) {
+                    screen.classList.add('fade-in');
+                    screen.classList.add('active');
+                } else {
+                    screen.classList.add('fade-out');
+                    setTimeout(() => screen.classList.remove('active'), 500);
+                }
+            });
         }
+        
     
          // Event listener for the Options button to open the options screen
          optionsButton.addEventListener('click', () => {
